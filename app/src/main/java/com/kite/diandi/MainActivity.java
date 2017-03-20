@@ -9,9 +9,12 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.kite.diandi.homepage.MainFragment;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
+    private MainFragment mainFragment;
     private NavigationView navigationView;
     private DrawerLayout drawer;
     private Toolbar toolbar;
@@ -21,6 +24,18 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initVew();
+
+        if (savedInstanceState != null) {
+            mainFragment = (MainFragment) getSupportFragmentManager().getFragment(savedInstanceState, "MainFragment");
+        } else {
+            mainFragment = MainFragment.newInstance();
+        }
+
+        if (!mainFragment.isAdded()) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.layout_fragment, mainFragment)
+                    .commit();
+        }
     }
 
     private void initVew() {
@@ -46,5 +61,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         return false;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mainFragment.isAdded()) {
+            getSupportFragmentManager().putFragment(outState, "MainFragment", mainFragment);
+        }
+
     }
 }
