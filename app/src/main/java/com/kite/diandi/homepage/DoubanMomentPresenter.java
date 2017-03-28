@@ -11,9 +11,11 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.kite.diandi.bean.BeanType;
 import com.kite.diandi.bean.DoubanMomentNews;
 import com.kite.diandi.bean.StringModelImpl;
 import com.kite.diandi.db.DatabaseHelper;
+import com.kite.diandi.detail.DetailActivity;
 import com.kite.diandi.interfaze.OnStringListener;
 import com.kite.diandi.service.CacheService;
 import com.kite.diandi.util.Api;
@@ -61,8 +63,17 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
     @Override
     public void startReading(int position) {
         DoubanMomentNews.posts item = list.get(position);
-        Toast.makeText(context, "start to reading", Toast.LENGTH_SHORT).show();
-        //TODO :
+        Intent intent = new Intent(context, DetailActivity.class);
+        intent.putExtra("type", BeanType.TYPE_DOUBAN);
+        intent.putExtra("id", item.getId());
+        intent.putExtra("title", item.getTitle());
+        if (item.getThumbs().size() == 0) {
+            intent.putExtra("coverUrl", "");
+        } else {
+            intent.putExtra("coverUrl", item.getThumbs().get(0).getMedium().getUrl());
+        }
+        context.startActivity(intent);
+
     }
 
     @Override

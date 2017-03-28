@@ -39,7 +39,6 @@ import com.kite.diandi.util.Api;
 import java.util.Calendar;
 
 /**
- * Created by Lizhaotailang on 2016/9/18.
  * 定义了内部类LocalReceiver， 用于接收内部广播并获取传递的数据
  * 可以将三种请求内容的方法合并为一个，但是这样会使代码可读性变差
  */
