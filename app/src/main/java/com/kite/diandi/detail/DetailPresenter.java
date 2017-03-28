@@ -1,13 +1,18 @@
 package com.kite.diandi.detail;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
+import android.text.Html;
 import android.webkit.WebView;
 
 import com.android.volley.Network;
@@ -27,6 +32,7 @@ import com.kite.diandi.util.NetworkState;
 
 import java.util.ArrayList;
 
+import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -84,12 +90,68 @@ public class DetailPresenter implements DetailContract.Presenter {
 
     @Override
     public void openInBrowser() {
+        if (checkNull()) {
+            view.showLoadingError();
+            return;
+        }
 
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+
+            switch (type) {
+//                case TYPE_ZHIHU:
+//                    intent.setData(Uri.parse(zhihuDailyStory.getShare_url()));
+//                    break;
+//                case TYPE_GUOKR:
+//                    intent.setData(Uri.parse(Api.GUOKR_ARTICLE_LINK_V1 + id));
+//                    break;
+                case TYPE_DOUBAN:
+                    intent.setData(Uri.parse(doubanMomentStory.getShort_url()));
+            }
+
+            context.startActivity(intent);
+
+        } catch (android.content.ActivityNotFoundException ex){
+            view.showBrowserNotFoundError();
+        }
     }
 
     @Override
     public void shareAsText() {
+        if (checkNull()) {
+            view.showSharingError();
+            return;
+        }
+        try {
+            Intent shareIntent = new Intent().setAction(Intent.ACTION_SEND).setType("text/plain");
+            String shareText = "" + title + " ";
 
+            switch (type) {
+//                case TYPE_ZHIHU:
+//                    shareText += zhihuDailyStory.getShare_url();
+//                    break;
+//                case TYPE_GUOKR:
+//                    shareText += Api.GUOKR_ARTICLE_LINK_V1 + id;
+//                    break;
+                case TYPE_DOUBAN:
+                    shareText += doubanMomentStory.getShort_url();
+            }
+
+            shareText = shareText + "\t\t\t" + context.getString(R.string.share_extra);
+
+            shareIntent.putExtra(Intent.EXTRA_TEXT,shareText);
+            context.startActivity(Intent.createChooser(shareIntent,context.getString(R.string.share_to)));
+        } catch (android.content.ActivityNotFoundException ex){
+            view.showLoadingError();
+        }
+
+    }
+
+    private boolean checkNull() {
+        return
+//                (type == BeanType.TYPE_ZHIHU && zhihuDailyStory == null)
+//                || (type == BeanType.TYPE_GUOKR && guokrStory == null) ||
+                 (type == BeanType.TYPE_DOUBAN && doubanMomentStory == null);
     }
 
     @Override
@@ -111,17 +173,92 @@ public class DetailPresenter implements DetailContract.Presenter {
 
     @Override
     public void copyText() {
+        if (checkNull()) {
+            view.showCopyTextError();
+            return;
+        }
+
+        ClipboardManager manager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+        ClipData clipData = null;
+        switch (type) {
+//            case TYPE_ZHIHU:
+//                clipData = ClipData.newPlainText("text", Html.fromHtml(title + "\n" + zhihuDailyStory.getBody()).toString());
+//                break;
+//            case TYPE_GUOKR:
+//                clipData = ClipData.newPlainText("text", Html.fromHtml(guokrStory).toString());
+//                break;
+            case TYPE_DOUBAN:
+                clipData = ClipData.newPlainText("text", Html.fromHtml(title + "\n" + doubanMomentStory.getContent()).toString());
+        }
+        manager.setPrimaryClip(clipData);
+        view.showTextCopied();
 
     }
 
     @Override
     public void copyLink() {
+        if (checkNull()) {
+            view.showCopyTextError();
+            return;
+        }
 
+        ClipboardManager manager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+        ClipData clipData = null;
+        switch (type) {
+//            case TYPE_ZHIHU:
+//                clipData = ClipData.newPlainText("text", Html.fromHtml(zhihuDailyStory.getShare_url()).toString());
+//                break;
+//            case TYPE_GUOKR:
+//                clipData = ClipData.newPlainText("text", Html.fromHtml(Api.GUOKR_ARTICLE_LINK_V1 + id).toString());
+//                break;
+            case TYPE_DOUBAN:
+                clipData = ClipData.newPlainText("text", Html.fromHtml(doubanMomentStory.getOriginal_url()).toString());
+        }
+        manager.setPrimaryClip(clipData);
+        view.showTextCopied();
     }
 
     @Override
     public void addToOrDeleteFromBookmarks() {
+        String tmpTable = "";
+        String tmpId = "";
+        switch (type) {
+            case TYPE_ZHIHU:
+                tmpTable = "Zhihu";
+                tmpId = "zhihu_id";
+                break;
+            case TYPE_GUOKR:
+                tmpTable = "Guokr";
+                tmpId = "guokr_id";
+                break;
+            case TYPE_DOUBAN:
+                tmpTable = "Douban";
+                tmpId = "douban_id";
+                break;
+            default:
+                break;
+        }
 
+        if (queryIfIsBookmarked()) {
+            // delete
+            // update Zhihu set bookmark = 0 where zhihu_id = id
+            ContentValues values = new ContentValues();
+            values.put("bookmark", 0);
+            dbHelper.getWritableDatabase().update(tmpTable, values, tmpId + " = ?", new String[]{String.valueOf(id)});
+            values.clear();
+
+            view.showDeletedFromBookmarks();
+        } else {
+            // add
+            // update Zhihu set bookmark = 1 where zhihu_id = id
+
+            ContentValues values = new ContentValues();
+            values.put("bookmark", 1);
+            dbHelper.getWritableDatabase().update(tmpTable, values, tmpId + " = ?", new String[]{String.valueOf(id)});
+            values.clear();
+
+            view.showAddedToBookmarks();
+        }
     }
 
     @Override
@@ -182,6 +319,10 @@ public class DetailPresenter implements DetailContract.Presenter {
 
 
     private String convertDoubanContent() {
+        if (doubanMomentStory == null) {
+            view.showLoadingError();
+            return null;
+        }
 
         if (doubanMomentStory.getContent() == null) {
             return null;

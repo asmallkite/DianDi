@@ -37,6 +37,8 @@ public class DetailContract {
 
         void showCopyTextError();
 
+        void showAddedToBookmarks();
+
         void showDeletedFromBookmarks();
 
     }
