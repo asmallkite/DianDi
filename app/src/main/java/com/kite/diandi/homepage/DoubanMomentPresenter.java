@@ -116,7 +116,7 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
                                     db.endTransaction();
                                 }
                             }
-                            Intent intent = new Intent("com.marktony.zhihudaily.LOCAL_BROADCAST");
+                            Intent intent = new Intent("com.kite.diandi.LOCAL_BROADCAST");
                             intent.putExtra("type", CacheService.TYPE_DOUBAN);
                             intent.putExtra("id", item.getId());
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

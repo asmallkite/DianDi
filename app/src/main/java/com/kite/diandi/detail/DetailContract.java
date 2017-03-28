@@ -19,7 +19,7 @@ public class DetailContract {
 
         void showLoadingError();
 
-        void showShareingError();
+        void showSharingError();
 
         void showResult(String result);
 
