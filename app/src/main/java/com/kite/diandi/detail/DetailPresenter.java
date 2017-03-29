@@ -239,7 +239,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                 break;
         }
 
-        if (queryIfIsBookmarked()) {
+/*        if (queryIfIsBookmarked()) {
             // delete
             // update Zhihu set bookmark = 0 where zhihu_id = id
             ContentValues values = new ContentValues();
@@ -258,7 +258,7 @@ public class DetailPresenter implements DetailContract.Presenter {
             values.clear();
 
             view.showAddedToBookmarks();
-        }
+        }*/
     }
 
     @Override

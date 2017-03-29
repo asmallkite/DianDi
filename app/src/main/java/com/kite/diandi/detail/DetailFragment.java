@@ -61,7 +61,7 @@ public class DetailFragment extends Fragment implements DetailContract.View{
         setHasOptionsMenu(true);
 
         presenter.requestData();
-        
+
         view.findViewById(R.id.toolbar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
