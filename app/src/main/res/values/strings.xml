@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <string name="app_name">纸飞机</string>
+    <string name="app_name">点滴日报</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

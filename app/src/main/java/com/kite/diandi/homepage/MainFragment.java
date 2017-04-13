@@ -37,10 +37,6 @@ import com.kite.diandi.adapter.MainPagerAdapter;
 
 import java.util.Random;
 
-/**
- * Created by Lizhaotailang on 2016/8/23.
- */
-
 public class MainFragment extends Fragment {
 
     private Context context;
